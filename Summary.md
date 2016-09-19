@@ -44,7 +44,7 @@ Hello World!
 
 There are some really large applications already working in WebAssembly too: [Demo](https://webassembly.github.io/demo/).
 
-# Rust in WebAssembly
+# Rust on WebAssembly
 
 The big question in the room is: "Can you compile Rust to WebAssembly?"
 
@@ -72,3 +72,28 @@ Games are the obvious first target. TODO (more)
 But I think WebAssembly as a lot of potential beyond the web.
 
 Take, for example, the rust compiler bootstrapping process.  `rustc` is written in Rust, so there's an obvious chicken-and-egg problem.  Which came first, the language, or the compiler?
+
+TODO (more)
+
+# WebAssembly on Rust
+
+As with most things, one of the best ways to learn something in software is to re-implement it yourself.  Here's what I learned, not just about WebAssembly, but also Rust:
+
+* NaN behavior is notoriously inconsistent
+* Zero-copy parsing
+* Generics over lifetime parameters/ownership
+* Memory pooling would be nice, but painful/difficult
+  * Mutable OUTER container, with immutable inner data not (currently) possible (?)
+
+# Extras
+
+Long-term vision:
+
+* Platform for running well-sandboxed, perfectly deterministic mini-build tasks
+* Built-in to version control system
+* Useful for e.g. 100% portable pre-commit checks
+
+HexFloats
+
+* Good for well-spec'd parsing
+* Parsing and printing decimal floats is a *huge* pain in the ass (nobody does it consistently)
