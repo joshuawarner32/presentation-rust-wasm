@@ -73,6 +73,12 @@ But I think WebAssembly as a lot of potential beyond the web.
 
 Take, for example, the rust compiler bootstrapping process.  `rustc` is written in Rust, so there's an obvious chicken-and-egg problem.  Which came first, the language, or the compiler?
 
+Right now, rustc solves this by hosting pre-built versions of the previous version of the rustc compiler, built for a variety of architectures and OSes.  The build process downloads these pre-built binaries and uses these to build the current version.  If you go back far enough, you'll find binaries for the original OCAML version of the compiler.
+
+But what happens if rustc didn't happen to build binaries for your platform?  All of the sudden, you can't do a full from-source bootstrap process on your machine.  At some point, you have to cross-compile.
+
+Imagine instead of these rustc binaries were actually just properly packaged .wasm binaries.  Instead of having to cross-compile the first stage of the compiler, all you need to bootstrap the rustc compiler is a wasm interpreter - which is relatively easy to build and incredibly portable.  What's more, wasm interpreters / compilers should shortly be practically universal, so this could work out-of-the-box on a huge variety of systems.
+
 TODO (more)
 
 # WebAssembly on Rust
@@ -92,8 +98,15 @@ Long-term vision:
 * Platform for running well-sandboxed, perfectly deterministic mini-build tasks
 * Built-in to version control system
 * Useful for e.g. 100% portable pre-commit checks
+* Good for isolated, reproducible, verifiable builds of critical components (e.g. bitcoin wallets)
 
 HexFloats
 
 * Good for well-spec'd parsing
 * Parsing and printing decimal floats is a *huge* pain in the ass (nobody does it consistently)
+
+Splitting enums
+
+* Sometimes you want a function to only accept a subset of enum variants
+* Rust type system doesn't currently support this
+* Hack/workaround: use a tree of nested enums
