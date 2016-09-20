@@ -54,10 +54,10 @@ WebAssembly or wasm is a new portable, size- and load-time-efficient format suit
 
 ```
 (module
-  (memory 1 1 (segment 0 "Hello"))
+  (memory 1 1 (segment 0 "\05\00\00\00Hello"))
   (import $puts "env" "puts" (param i32 i32))
   (func $main
-    (call_import $puts (i32.const 0) (i32.const 5))
+    (call_import $puts (i32.const 4) (i32.load (i32.const 0)))
   )
 
   (export "main" $main)
@@ -91,12 +91,12 @@ As WebAssembly _module_ is very similar to a rust _crate_
 ---
 
 ```
-(memory 1 1 (segment 0 "Hello\00"))
+(memory 1 1 (segment 0 "\05\00\00\00Hello"))
 ```
 
 1 page (64k) of initial memory
 1 page maximum
-Initialize the 5 bytes starting at 0 with the string "Hello"
+Initialize the 9 bytes starting at 0 with the (hex-escaped) string "\05\00\00\00Hello"
 
 ---
 
@@ -240,25 +240,20 @@ Confession:
 
 # Zero-copy parsing
 
-Works really well in rust
+Works really well in rust:
 
-TODO: code sample
+```
+struct Module<'a> {
+  imports: Vec<Import<'a>>,
+  // ...
+}
 
----
-
-# Wrapping integers
-
-Painful if you don't do it rust's way
-
-TODO: code sample
-
----
-
-# NaN handling
-
-Again: painful
-
-TODO: code sample
+struct Import<'a> {
+  module_name: &'a str,
+  function_name: &'a str,
+  function_type: TypeIndex,
+}
+```
 
 ---
 
@@ -270,7 +265,28 @@ Writable zero-copy
 
 # Possible solution: arenas
 
-TODO: code sample
+```rust
+struct Module<'a> { items: Vec<&'a [u8]> }
+
+let ar = Arena::new(1024);
+let m = Module::new();
+let bytes = ar.alloc_mut(5);
+bytes.copy_from_slice(b"Hello");
+m.items.push(bytes);
+```
+
+---
+
+```rust
+// NOTE: there's a similar struct/pattern in _unstable_ std
+impl Arena {
+  fn alloc_mut(&self, size: usize) -> &mut [u8] {
+    // self CAN'T BE MUTABLE in the signature.  Awkward.
+
+    /* ... */
+  }
+}
+```
 
 ---
 
@@ -278,7 +294,62 @@ Writable zero-copy
 
 # My solution: generify ownership
 
-TODO: code sample
+```rust
+struct Module<B: AsBytes> { items: Vec<B> }
+
+fn parse<'a>(data: &'a [u8]) -> Module<&'a [u8]> { /* ... */ }
+
+fn write<B: AsBytes, W: Write>(module: &Module<B>, writer: W) { /* ... */ }
+
+```
+
+---
+
+# Wrapping integers
+
+Painful if you don't do it rust's way
+
+```
+fn u64_from_real_i32(val: i32) -> Wrapping<u64> {
+  u64_from_i64(Wrapping(val as i64))
+}
+
+fn u64_from_i64(val: Wrapping<i64>) -> Wrapping<u64> {
+  unsafe { mem::transmute(val) }
+}
+```
+
+---
+
+# NaN handling
+
+Again: painful
+
+```
+if ao.is_nan() {
+  ao
+} else if bo.is_nan() {
+  bo
+} else {
+  ao.min(bo)
+}
+```
+
+---
+
+# NaN handling
+
+Had to check the sign bit by hand:
+
+```
+fn copysign_f64(a: f64, b: f64) -> f64 {
+  if (unsafe { mem::transmute::<f64, u64>(b) } & 0x8000_0000_0000_0000u64) == 0 {
+    a.abs()
+  } else {
+    -a.abs()
+  }
+}
+```
 
 ---
 
