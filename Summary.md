@@ -4,6 +4,8 @@ Joshua Warner, Denver/Boulder Rust meetup, 2016-09-21
 
 ## First, what is WebAssembly?
 
+TODO: more basic intro
+
 Before we look to deeply into WebAssembly, it's important to consider what it's not:
 
 * A replacement for JavaScript
@@ -26,13 +28,26 @@ So what is it, then?
 What does it look like?
 
 ```
-TODO!!!!!!
+00000000  00 01 01 01 01 02 01 00  01 00 00 02 02 03 00 00  |................|
+00000010  42 00 00 00 47 00 00 00  4b 00 00 00 09 01 00 50  |B...G...K......P|
+00000020  00 00 00 55 00 00 00 07  00 00 00 09 00 09 05 12  |...U............|
+00000030  00 ff 04 01 00 00 00 00  5a 00 00 00 05 00 00 00  |........Z.......|
+00000040  01 06 70 75 74 73 00 65  6e 76 00 70 75 74 73 00  |..puts.env.puts.|
+00000050  6d 61 69 6e 00 6d 61 69  6e 00 48 65 6c 6c 6f     |main.main.Hello|
 ```
 
 Here's what that looks like when "disassembled" (the text format is still in flux):
 
 ```
-TODO!!!!!!
+(module
+  (memory 1 1 (segment 0 "Hello"))
+  (import $puts "env" "puts" (param i32 i32))
+  (func $main
+    (call_import $puts (i32.const 0) (i32.const 5))
+  )
+
+  (export "main" $main)
+)
 ```
 
 I bet you can guess what that does...
@@ -42,15 +57,17 @@ $ ./wasm hello.wasm
 Hello World!
 ```
 
+TODO: describe what's going on.  Also, linear memory.
+
 There are some really large applications already working in WebAssembly too: [Demo](https://webassembly.github.io/demo/).
 
 # Rust on WebAssembly
 
 The big question in the room is: "Can you compile Rust to WebAssembly?"
 
-Yes!
+Yes!  ... sort of.
 
-At least, if you want to run off a not-yet-merged pull request or restrict yourself to a very limited subset of the language.
+At least, if you want to run on a not-yet-merged pull request or restrict yourself to a very limited subset of the language.
 
 The area is very active:
 * TODO
@@ -61,7 +78,9 @@ Here's a quick look at mir2wasm:
 
 TODO
 
-Likely, the go-to solution for running Rust on WebAssembly will be LLVM's backend.
+Likely, the go-to solution for running Rust on WebAssembly will be LLVM's backend.  It's likely to be compatible with a wide range of off-the-shelf software and include common APIs for e.g. opengl rendering (backed by webgl, of course).
+
+However, if you have a limited amount of logic, and a small set of APIs you need to call, mir2wasm will be able to generate much smaller code with fewer dependencies.  Mir2wasm is unfortunately also in a much more fledgling state than the LLVM wasm backend.
 
 TODO (more)
 
@@ -85,7 +104,10 @@ TODO (more)
 
 As with most things, one of the best ways to learn something in software is to re-implement it yourself.  Here's what I learned, not just about WebAssembly, but also Rust:
 
-* NaN behavior is notoriously inconsistent
+* NaN behavior is notoriously inconsistent, TODO: move this bullet down
+
+TODO: example (max)
+
 * Zero-copy parsing
 * Generics over lifetime parameters/ownership
 * Memory pooling would be nice, but painful/difficult
