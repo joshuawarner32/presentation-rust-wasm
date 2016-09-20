@@ -169,8 +169,19 @@ More.
 
 ---
 
-# TODO!!!!!!
-More.
+# Soon!
+
+* https://internals.rust-lang.org/t/need-help-with-emscripten-port/3154/111
+* https://github.com/rust-lang/rust/pull/36339
+* https://github.com/rust-lang/rust/issues/33205
+
+---
+
+# mir2wasm
+
+* Smaller, lighter weight.
+* Kind-of working _now_
+* https://github.com/brson/mir2wasm
 
 ---
 
