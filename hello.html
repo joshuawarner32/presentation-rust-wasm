@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head><title>WebAssembly Says Hello!</title></head>
+<body>
+  <button onclick="javascript:runModule()">Run!</button>
+  <pre id="output"></pre>
+
+<script type="text/javascript">
+function runModule() {
+  const output = document.getElementById("output");
+  fetch("hello-old.wasm").then(r => r.arrayBuffer())
+  .then(b => {
+    const m = Wasm.instantiateModule(b, {
+      env: {
+        puts: (offset, len) => {
+          const d = new TextDecoder("utf-8");
+          output.innerText += d.decode(m.exports.memory.slice(offset, offset + len)) + "\n";
+        }
+      }
+    });
+
+    m.exports.main();
+  })
+  .catch(e => {
+    if(e.stack) {
+      console.error(e.stack);
+    } else {
+      console.error(e);
+    }
+  });
+}
+</script>
+</body>
+</html>

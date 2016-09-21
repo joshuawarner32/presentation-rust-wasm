@@ -154,8 +154,21 @@ Export the function with ID `$main` as `"main"`
 
 ---
 
-# TODO!!!!!!!!
-More.
+From JavaScript:
+
+```javascript
+const module = Wasm.instantiateModule(helloOldWasmBuffer, {
+  env: {
+    puts: (offset, len) => {
+      const d = new TextDecoder("utf-8");
+      output.innerText +=
+        d.decode(m.exports.memory.slice(offset, offset + len)) + "\n";
+    }
+  }
+});
+
+module.exports.main();
+```
 
 ---
 
@@ -360,10 +373,6 @@ fn copysign_f64(a: f64, b: f64) -> f64 {
   }
 }
 ```
-
----
-
-# Demo
 
 ---
 
