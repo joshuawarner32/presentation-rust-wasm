@@ -1,5 +1,5 @@
 <!-- $size: 16:9 -->
-
+# Don't foget the TODOS!!!!!!!!!
 # Rust and WebAssembly
 
 Joshua Warner - Rust Denver/Boulder meetup - 2016-09-21
@@ -39,13 +39,18 @@ WebAssembly or wasm is a new portable, size- and load-time-efficient format suit
 
 # A taste
 
-```
-00000000  00 01 01 01 01 02 02 00  01 01 00 00 02 02 03 00  |................|
-00000010  00 43 00 00 00 48 00 00  00 4c 00 00 00 09 01 00  |.C...H...L......|
-00000020  51 00 00 00 56 00 00 00  07 00 00 00 09 00 09 05  |Q...V...........|
-00000030  12 00 ff 04 01 00 00 00  00 5b 00 00 00 05 00 00  |.........[......|
-00000040  00 01 06 70 75 74 73 00  65 6e 76 00 70 75 74 73  |...puts.env.puts|
-00000050  00 6d 61 69 6e 00 6d 61  69 6e 00 48 65 6c 6c 6f  |.main.main.Hello|
+```hexdump
+00000000  00 61 73 6d 0c 00 00 00  04 74 79 70 65 89 80 80  |.asm.....type...|
+00000010  80 00 02 40 02 01 01 00  40 00 00 06 69 6d 70 6f  |...@....@...impo|
+00000020  72 74 8c 80 80 80 00 01  00 00 03 65 6e 76 04 70  |rt.........env.p|
+00000030  75 74 73 08 66 75 6e 63  74 69 6f 6e 82 80 80 80  |uts.function....|
+00000040  00 01 01 06 6d 65 6d 6f  72 79 82 80 80 80 00 01  |....memory......|
+00000050  01 06 65 78 70 6f 72 74  88 80 80 80 00 01 00 00  |..export........|
+00000060  04 6d 61 69 6e 04 63 6f  64 65 91 80 80 80 00 01  |.main.code......|
+00000070  8b 80 80 80 00 00 10 04  10 00 2a 02 00 18 02 00  |..........*.....|
+00000080  04 64 61 74 61 8e 80 80  80 00 01 10 00 0f 09 05  |.data...........|
+00000090  00 00 00 48 65 6c 6c 6f  04 6e 61 6d 65 87 80 80  |...Hello.name...|
+000000a0  80 00 01 04 6d 61 69 6e  00                       |....main.|
 ```
 
 ---
@@ -74,6 +79,7 @@ NOTE: the text format is not yet finalized
 ---
 
 ```
+# Note: this is an approximation
 $ ./wasm hello.wasm
 Hello
 ```
@@ -114,18 +120,6 @@ Import `"puts"` from module `"env"`, and call it `$puts` locally.
 
 ---
 
-## `$puts` is just for readability.
-
-It's actually just an integer ID in the compile binary
-
----
-
-## `"puts"` is what other modules need to import.
-
-It's becomes a verbatum string in the binary
-
----
-
 ```
 (func $main
   ; ...
@@ -137,10 +131,18 @@ Declare a function with ID `$main` with no parameters and no return value
 ---
 
 ```
-(call_import $puts (i32.const 0) (i32.const 5))
+(i32.load (i32.const 0))
 ```
 
-Call the import with local ID `$puts`, passing `0` and `5` as arguments
+Load a 32-bit int from address `0`
+
+---
+
+```
+(call_import $puts (i32.const 4) (i32.load (i32.const 0)))
+```
+
+Call the import with local ID `$puts`, passing `0` and the result of the load as arguments
 
 ---
 
@@ -154,6 +156,10 @@ Export the function with ID `$main` as `"main"`
 
 # TODO!!!!!!!!
 More.
+
+---
+
+# But it's pre-release, right?
 
 ---
 
@@ -191,11 +197,15 @@ More.
 
 # Web games
 
-TODO: Image
+![](angry_bots.jpg)
+[Angry Bots](https://webassembly.github.io)
 
 ---
 
 # Deploying large apps to the web
+
+![](half_vim.png)
+[vim.js](http://coolwanglu.github.io/vim.js/emterpreter/vim.html)
 
 ---
 
@@ -203,7 +213,7 @@ TODO: Image
 
 ---
 
-# Aside: bootstrapping `rustc`
+# Bootstrapping `rustc`
 
 ---
 
@@ -228,7 +238,7 @@ i686-apple-darwin      		 powerpc64le-unknown-linux-gnu
 
 ---
 
-# Aside: compiling bitcoin
+# Compiling bitcoin ![](bitcoin_core_logo_colored_reversed.png)
 
 ---
 
@@ -373,7 +383,17 @@ Extra
 
 # Hexfloat
 
-TODO: code sample
+```
+nan +nan -nan
+nan:0x012345 +nan:0x304050 -nan:0x2abcde
+infinity +infinity -infinity 0x0.0p0 +0x0.0p0 -0x0.0p0
+0x1.921fb6p+2 0x1p-149 0x1p-126 0x1.fffffep+127 0x1.fffffcp-127
+0x1.p10 0.0e0 +0.0e0 -0.0e0
+6.28318548202514648
+1.4013e-45 1.1754944e-38 1.1754942e-38 3.4028234e+38 1.e10
+```
+
+![](618px-IEEE_754_Double_Floating_Point_Format.svg.png)
 
 ---
 
