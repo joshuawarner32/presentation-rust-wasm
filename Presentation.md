@@ -1,5 +1,5 @@
 <!-- $size: 16:9 -->
-# Don't foget the TODOS!!!!!!!!!
+
 # Rust and WebAssembly
 
 Joshua Warner - Rust Denver/Boulder meetup - 2016-09-21
